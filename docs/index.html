@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Flaky Scout — local-first CI test-failure triage</title>
+  <meta name="description" content="CI test-failure triage that classifies failures with signature matching and a local 8B model — nothing ever leaves your runner." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <p class="eyebrow">🔍 Flaky Scout</p>
+      <h1>CI test-failure triage that never phones home.</h1>
+      <p class="sub">
+        When a test fails, Flaky Scout figures out why — selector drift, a real
+        assertion failure, flaky timing, or the environment being down — using
+        instant pattern matching first, and your own local AI model only when it
+        has to. Your logs never leave the machine they ran on.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#demo">Try the demo</a>
+        <a class="btn btn-ghost" href="https://github.com/Sandy-262/flaky-scout">View on GitHub</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="how">
+      <h2>How it classifies a failure</h2>
+      <p class="section-sub">Cheapest check first — the AI model is a last resort, not the default.</p>
+      <ol class="steps">
+        <li>
+          <span class="step-num">1</span>
+          <div>
+            <h3>Signature match <em>(instant, free)</em></h3>
+            <p>Regex patterns for the common, well-known failure shapes —
+            <code>NoSuchElementException</code>, <code>TimeoutException</code>,
+            <code>ConnectionRefusedError</code>, assertion failures, and more.
+            Most failures stop here.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-num">2</span>
+          <div>
+            <h3>Knowledge-base cache <em>(instant, free)</em></h3>
+            <p>A novel failure the AI has classified before gets cached, keyed by a
+            normalized hash of the log — so line numbers and timestamps don't matter.
+            Seen it once, it's instant from then on.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-num">3</span>
+          <div>
+            <h3>Local model <em>(a few seconds)</em></h3>
+            <p>Only genuinely new patterns reach your own model via
+            <a href="https://ollama.com">Ollama</a> — nothing is sent to a third-party
+            API. It returns a category, root cause, fix hint, and whether it's safe to
+            auto-retry.</p>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <section id="demo" class="demo">
+      <h2>Try layer 1 right here</h2>
+      <p class="section-sub">
+        This page is static and has no backend, so it can only run the free
+        signature-matching layer — but that's genuinely the same regex list the real
+        tool uses. Paste a failure log, or try an example.
+      </p>
+      <div class="examples">
+        <button data-example="selector">Selenium selector error</button>
+        <button data-example="environment">Appium connection refused</button>
+        <button data-example="novel">Novel / no known pattern</button>
+      </div>
+      <textarea id="log-input" rows="8" placeholder="Paste a test failure log or stack trace here…"></textarea>
+      <button id="run-btn" class="btn btn-primary">Triage it</button>
+      <div id="result" class="result-area"></div>
+    </section>
+
+    <section class="quickstart">
+      <h2>Quick start</h2>
+      <p class="section-sub">
+        Needs a self-hosted CI runner with <a href="https://ollama.com">Ollama</a>
+        installed (<code>ollama pull qwen3:8b</code>) — that's the trade-off for
+        nothing leaving the box.
+      </p>
+      <pre><code># .github/workflows/test.yml
+jobs:
+  test:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - run: pytest --junitxml=report.xml
+        continue-on-error: true
+      - uses: Sandy-262/flaky-scout@v1
+        with:
+          junit-xml: report.xml
+          post-comment: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}</code></pre>
+      <p>Works with any test runner that emits JUnit XML — pytest, Jest
+      (<code>jest-junit</code>), TestNG/Selenium, Appium suites, and more.
+      Full setup and the CLI usage are in the
+      <a href="https://github.com/Sandy-262/flaky-scout#readme">README</a>.</p>
+    </section>
+  </main>
+
+  <footer class="wrap">
+    <p>MIT licensed · built by <a href="https://github.com/Sandy-262">Sandeep Sai Kankanala</a> ·
+    <a href="https://github.com/Sandy-262/flaky-scout">source on GitHub</a></p>
+  </footer>
+
+  <script src="signatures.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

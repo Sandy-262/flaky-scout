@@ -2,6 +2,8 @@
 
 **CI test-failure triage that never sends your logs anywhere.**
 
+🌐 **[Live site + interactive demo](https://sandy-262.github.io/flaky-scout/)** — try the classifier in your browser before installing anything.
+
 Every time a test fails in CI, something has to look at the stack trace and
 figure out: is this a real bug, a stale selector, a timing-flaky test, or an
 infra hiccup? Usually that's an engineer, manually, repeatedly, for the same
