@@ -16,6 +16,11 @@
 # self-hosted runner and a step that checks out/executes PR code (like the
 # test run here), that's the single most common GitHub Actions RCE pattern:
 # it grants write-scoped secrets to a workflow that still runs attacker code.
+#
+# Actions below are pinned to a commit SHA, not a mutable version tag — a
+# tag can be force-moved to point at different code later (supply-chain
+# risk); a SHA can't. The `# vX.Y.Z` comment is just for humans to see
+# what that SHA currently corresponds to.
 name: Tests with Flaky Scout triage
 
 on: [pull_request]
@@ -28,14 +33,14 @@ jobs:
   test:
     runs-on: self-hosted   # must have Ollama running locally — see SECURITY.md
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Run tests
         run: pytest --junitxml=report.xml
         continue-on-error: true   # let Flaky Scout run even if tests failed
 
       - name: Triage failures with Flaky Scout
-        uses: Sandy-262/flaky-scout@v1
+        uses: Sandy-262/flaky-scout@7456a8e226a738c86b8ea805fb1ac6eaed27be01 # v1.0.0
         with:
           junit-xml: report.xml
           post-comment: true

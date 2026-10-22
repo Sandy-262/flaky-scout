@@ -53,6 +53,14 @@ Treat all of that as **attacker-influenced**, not trusted, even though it's
   script. That's what avoids the classic GitHub Actions vulnerability where
   an attacker-controlled input (e.g. a PR title) containing `$(...)` or
   backticks gets executed as shell when interpolated directly into a script.
+- **Supply-chain / mutable-tag risk** — this repo has GitHub's
+  `sha_pinning_required` Actions-permissions setting enabled, and
+  [`example-usage.yml`](.github/workflows/example-usage.yml) pins
+  `actions/checkout` and `Sandy-262/flaky-scout` itself to commit SHAs, not
+  the mutable `v4`/`v1` tags — a tag can be force-moved later to point at
+  different code than what you reviewed; a SHA can't. The `v1`/`v1.0.0`
+  release tags still exist for convenience/readability, just not used as
+  the actual `uses:` ref in anything this repo controls.
 
 ## What's a trust decision, not a bug
 

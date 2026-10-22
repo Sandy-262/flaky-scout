@@ -62,16 +62,23 @@ Requires a **self-hosted runner** with [Ollama](https://ollama.com) installed
 and a model pulled (`ollama pull qwen3:8b`) — this is the trade-off for
 "nothing leaves the box": you need infra that can run the model.
 
+See [`.github/workflows/example-usage.yml`](.github/workflows/example-usage.yml)
+for the full version with `permissions:` scoping and security notes — short
+version:
+
 ```yaml
 # .github/workflows/test.yml
+permissions:
+  contents: read
+  pull-requests: write
 jobs:
   test:
     runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - run: pytest --junitxml=report.xml
         continue-on-error: true
-      - uses: Sandy-262/flaky-scout@v1
+      - uses: Sandy-262/flaky-scout@7456a8e226a738c86b8ea805fb1ac6eaed27be01 # v1.0.0
         with:
           junit-xml: report.xml
           post-comment: true
