@@ -3,71 +3,177 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Flaky Scout — local-first CI test-failure triage</title>
-  <meta name="description" content="CI test-failure triage that classifies failures with signature matching and a local 8B model — nothing ever leaves your runner." />
+  <title>Flaky Scout — AI test triage that never leaves the building</title>
+  <meta name="description" content="Flaky Scout reads every failed test the moment it happens and tells you why — using AI that runs entirely on your own servers. Zero data exposure. Zero per-query bills." />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header class="hero">
+  <nav class="navbar">
+    <div class="wrap nav-inner">
+      <a class="brand" href="#top">
+        <span class="brand-mark" aria-hidden="true">🔍</span>
+        <span>Flaky Scout</span>
+      </a>
+      <div class="nav-links">
+        <a href="#why">Why it matters</a>
+        <a href="#how">How it works</a>
+        <a href="#demo">Live demo</a>
+        <a class="btn btn-ghost btn-sm" href="https://github.com/Sandy-262/flaky-scout">GitHub ↗</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero" id="top">
+    <div class="hero-glow" aria-hidden="true"></div>
     <div class="wrap">
-      <p class="eyebrow">🔍 Flaky Scout</p>
-      <h1>CI test-failure triage that never phones home.</h1>
+      <p class="eyebrow">🔍 FLAKY SCOUT &nbsp;·&nbsp; AI-POWERED CI TRIAGE</p>
+      <h1>Your tests fail.<br>Flaky Scout tells you <span class="accent-text">why</span> — before you even open the logs.</h1>
       <p class="sub">
-        When a test fails, Flaky Scout figures out why — selector drift, a real
-        assertion failure, flaky timing, or the environment being down — using
-        instant pattern matching first, and your own local AI model only when it
-        has to. Your logs never leave the machine they ran on.
+        Every broken build is a mystery someone has to solve by hand. Flaky Scout solves it
+        automatically, in seconds — using AI that lives entirely inside your own walls.
+        No cloud calls. No per-use bills. No data ever leaving the building.
       </p>
       <div class="cta-row">
-        <a class="btn btn-primary" href="#demo">Try the demo</a>
-        <a class="btn btn-ghost" href="https://github.com/Sandy-262/flaky-scout">View on GitHub</a>
+        <a class="btn btn-primary btn-lg" href="#demo">⚡ See it think, live</a>
+        <a class="btn btn-ghost btn-lg" href="https://github.com/Sandy-262/flaky-scout">View the code ↗</a>
+      </div>
+      <div class="badge-row">
+        <span class="pill">🔒 100% on your servers</span>
+        <span class="pill">💸 $0 per query, ever</span>
+        <span class="pill">⚡ Answers in seconds</span>
+        <span class="pill">🧩 Plugs into any CI</span>
       </div>
     </div>
   </header>
 
-  <main class="wrap">
-    <section class="how">
-      <h2>How it classifies a failure</h2>
-      <p class="section-sub">Cheapest check first — the AI model is a last resort, not the default.</p>
+  <main>
+    <section id="why" class="wrap why">
+      <p class="kicker">WHY IT MATTERS</p>
+      <h2>The business case, in plain English.</h2>
+      <p class="section-sub">
+        Not another dashboard. Not another cloud subscription. A quiet fix for a problem
+        that's quietly costing you engineering hours every single week.
+      </p>
+      <div class="cards">
+        <div class="card">
+          <div class="card-icon icon-shield">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
+          </div>
+          <h3>Nothing to explain to Security</h3>
+          <p>Test logs can contain real customer data, internal URLs, API payloads.
+          Flaky Scout's AI runs on hardware you own — nothing is ever transmitted
+          to a third party. No vendor data-sharing agreement to negotiate.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon icon-dollar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          </div>
+          <h3>Costs the same at 10 or 10,000 runs</h3>
+          <p>Cloud "AI DevOps" tools bill per API call — the cost scales with your
+          team's activity. Flaky Scout runs on a model you already host. Ten
+          triages or ten thousand, the bill is the same: zero.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon icon-bolt">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+          </div>
+          <h3>Gives engineers their time back</h3>
+          <p>Someone currently reads every red build and decides "real bug or
+          noise?" by hand. Flaky Scout makes that call instantly, so your team
+          spends time fixing things, not diagnosing them.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon icon-puzzle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h4a2 2 0 100-4 2 2 0 00-2 2v2H4a2 2 0 000 4h2v4H4a2 2 0 100 4h4v-2a2 2 0 114 0v2h4a2 2 0 100-4h-2v-4h2a2 2 0 100-4h-4V5a2 2 0 10-4 0v2z"/></svg>
+          </div>
+          <h3>No rip-and-replace</h3>
+          <p>Works with whatever your teams already use — pytest, Jest, Selenium,
+          Appium, TestNG. If it can produce a standard test report, Flaky
+          Scout can read it. Nothing to migrate.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap compare">
+      <p class="kicker">THE OBVIOUS QUESTION</p>
+      <h2>"Isn't this just another AI tool sending our data to the cloud?"</h2>
+      <p class="section-sub">No. That's the entire point. Here's the honest comparison.</p>
+      <div class="compare-table">
+        <div class="compare-row compare-head">
+          <div></div>
+          <div>Typical "AI DevOps" tool</div>
+          <div class="highlight-col">Flaky Scout</div>
+        </div>
+        <div class="compare-row">
+          <div>Where your data goes</div>
+          <div>Their cloud servers</div>
+          <div class="highlight-col">Nowhere. Stays on your machine.</div>
+        </div>
+        <div class="compare-row">
+          <div>What you pay per use</div>
+          <div>Metered API fees</div>
+          <div class="highlight-col">$0, always</div>
+        </div>
+        <div class="compare-row">
+          <div>Works without internet</div>
+          <div>No</div>
+          <div class="highlight-col">Yes</div>
+        </div>
+        <div class="compare-row">
+          <div>Security review needed</div>
+          <div>Usually, for every new vendor</div>
+          <div class="highlight-col">Nothing new to approve — it's your infrastructure</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="how" class="wrap how">
+      <p class="kicker">HOW IT WORKS</p>
+      <h2>Smart enough to know when <em>not</em> to think too hard.</h2>
+      <p class="section-sub">
+        Most failures are old, familiar problems. Flaky Scout recognizes those
+        instantly and only wakes up its AI brain for the genuinely new ones —
+        so it's fast, cheap, and never wasteful.
+      </p>
       <ol class="steps">
         <li>
           <span class="step-num">1</span>
           <div>
-            <h3>Signature match <em>(instant, free)</em></h3>
-            <p>Regex patterns for the common, well-known failure shapes —
-            <code>NoSuchElementException</code>, <code>TimeoutException</code>,
-            <code>ConnectionRefusedError</code>, assertion failures, and more.
-            Most failures stop here.</p>
+            <h3>Instant recognition <em>(milliseconds, free)</em></h3>
+            <p>Flaky Scout already knows the usual suspects — a missing button,
+            a slow page, a broken connection. It spots these the moment the
+            failure comes in, no AI required.</p>
           </div>
         </li>
         <li>
           <span class="step-num">2</span>
           <div>
-            <h3>Knowledge-base cache <em>(instant, free)</em></h3>
-            <p>A novel failure the AI has classified before gets cached, keyed by a
-            normalized hash of the log — so line numbers and timestamps don't matter.
-            Seen it once, it's instant from then on.</p>
+            <h3>Memory <em>(milliseconds, free)</em></h3>
+            <p>Seen something like this before? It remembers — even if the
+            details changed slightly — and answers instantly instead of
+            asking the AI to figure it out twice.</p>
           </div>
         </li>
         <li>
           <span class="step-num">3</span>
           <div>
-            <h3>Local model <em>(a few seconds)</em></h3>
-            <p>Only genuinely new patterns reach your own model via
-            <a href="https://ollama.com">Ollama</a> — nothing is sent to a third-party
-            API. It returns a category, root cause, fix hint, and whether it's safe to
-            auto-retry.</p>
+            <h3>Your own private AI <em>(a few seconds)</em></h3>
+            <p>Only a genuinely new kind of failure reaches the AI model —
+            running on your own hardware via <a href="https://ollama.com">Ollama</a>,
+            never a third-party cloud. It explains what broke, why, and
+            whether it's safe to just try again.</p>
           </div>
         </li>
       </ol>
     </section>
 
-    <section id="demo" class="demo">
-      <h2>Try layer 1 right here</h2>
+    <section id="demo" class="wrap demo">
+      <p class="kicker">TRY IT YOURSELF</p>
+      <h2>Watch it think, right here.</h2>
       <p class="section-sub">
-        This page is static and has no backend, so it can only run the free
-        signature-matching layer — but that's genuinely the same regex list the real
-        tool uses. Paste a failure log, or try an example.
+        This page can't run the full AI (that needs your own server) — but the
+        instant-recognition layer above is running for real, right in your
+        browser. Paste a failure, or click an example.
       </p>
       <div class="examples">
         <button data-example="selector">Selenium selector error</button>
@@ -75,40 +181,56 @@
         <button data-example="novel">Novel / no known pattern</button>
       </div>
       <textarea id="log-input" rows="8" placeholder="Paste a test failure log or stack trace here…"></textarea>
-      <button id="run-btn" class="btn btn-primary">Triage it</button>
+      <button id="run-btn" class="btn btn-primary btn-lg">⚡ Triage it</button>
       <div id="result" class="result-area"></div>
     </section>
 
-    <section class="quickstart">
+    <section class="wrap quickstart">
+      <p class="kicker">FOR YOUR ENGINEERING TEAM</p>
       <h2>Quick start</h2>
       <p class="section-sub">
         Needs a self-hosted CI runner with <a href="https://ollama.com">Ollama</a>
-        installed (<code>ollama pull qwen3:8b</code>) — that's the trade-off for
-        nothing leaving the box.
+        installed (<code>ollama pull qwen3:8b</code>) — that one requirement is the
+        entire trade-off for "nothing ever leaves the box."
       </p>
       <pre><code># .github/workflows/test.yml
+permissions:
+  contents: read
+  pull-requests: write
 jobs:
   test:
     runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - run: pytest --junitxml=report.xml
         continue-on-error: true
-      - uses: Sandy-262/flaky-scout@v1
+      - uses: Sandy-262/flaky-scout@7456a8e226a738c86b8ea805fb1ac6eaed27be01 # v1.0.0
         with:
           junit-xml: report.xml
           post-comment: true
           github-token: ${{ secrets.GITHUB_TOKEN }}</code></pre>
       <p>Works with any test runner that emits JUnit XML — pytest, Jest
       (<code>jest-junit</code>), TestNG/Selenium, Appium suites, and more.
+      Security details (and why the Action references are pinned to commit
+      hashes, not version tags) are in
+      <a href="https://github.com/Sandy-262/flaky-scout/blob/main/SECURITY.md">SECURITY.md</a>.
       Full setup and the CLI usage are in the
       <a href="https://github.com/Sandy-262/flaky-scout#readme">README</a>.</p>
+    </section>
+
+    <section class="wrap cta-band">
+      <h2>Stop manually reading stack traces.</h2>
+      <p class="section-sub">It's free, open source, and it never asks for your data.</p>
+      <div class="cta-row cta-row-center">
+        <a class="btn btn-primary btn-lg" href="https://github.com/Sandy-262/flaky-scout">⭐ Get Flaky Scout on GitHub</a>
+      </div>
     </section>
   </main>
 
   <footer class="wrap">
     <p>MIT licensed · built by <a href="https://github.com/Sandy-262">Sandeep Sai Kankanala</a> ·
-    <a href="https://github.com/Sandy-262/flaky-scout">source on GitHub</a></p>
+    <a href="https://github.com/Sandy-262/flaky-scout">source on GitHub</a> ·
+    <a href="https://github.com/Sandy-262/flaky-scout/blob/main/SECURITY.md">security</a></p>
   </footer>
 
   <script src="signatures.js"></script>

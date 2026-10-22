@@ -34,12 +34,12 @@ function renderResult(result) {
     const meta = CATEGORY_META.UNKNOWN;
     resultEl.innerHTML = `
       <div class="result-card result-unknown">
-        <div class="result-head">${meta.emoji} <strong>No known signature matched</strong></div>
-        <p>This is where the local AI layer takes over. In the real tool, this log would be sent to
-        your own <code>qwen3:8b</code> model via Ollama — running on your machine, not a cloud API —
-        which would read the full description and return a category, root cause, and fix hint.</p>
-        <p>The web demo here only runs the instant, free, regex-based first layer (so it works with
-        no backend at all). Install the real tool to see the AI layer classify logs like this one.</p>
+        <div class="result-head">${meta.emoji} <strong>That's new — time to call in the AI</strong></div>
+        <p>This is exactly where your own private AI takes over. In the real tool, this log would go to
+        your own <code>qwen3:8b</code> model via Ollama — running on your hardware, never a cloud API —
+        which reads the full description and comes back with a cause, a fix, and a verdict.</p>
+        <p>This web page is just a static demo with no server behind it, so it can only show you the
+        free instant-recognition layer. Install the real thing to see the AI layer in action.</p>
       </div>`;
     return;
   }
