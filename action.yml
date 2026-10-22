@@ -1,0 +1,35 @@
+name: "Flaky Scout"
+description: "Local-first CI test-failure triage — classifies failures with signature matching + a local Ollama model. No logs ever leave the runner."
+branding:
+  icon: "search"
+  color: "blue"
+
+inputs:
+  junit-xml:
+    description: "Path to a JUnit XML test report (pytest --junitxml, jest-junit, TestNG, etc.)"
+    required: true
+  post-comment:
+    description: "Post the triage summary as a PR comment (requires github-token)."
+    required: false
+    default: "false"
+  github-token:
+    description: "Token used to post the PR comment. Usually `${{ secrets.GITHUB_TOKEN }}`."
+    required: false
+    default: ""
+  ollama-model:
+    description: "Ollama model to use for novel (non-signature-matched) failures."
+    required: false
+    default: "qwen3:8b"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Run Flaky Scout
+      shell: bash
+      env:
+        FS_JUNIT_XML: ${{ inputs.junit-xml }}
+        FS_POST_COMMENT: ${{ inputs.post-comment }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        FS_MODEL: ${{ inputs.ollama-model }}
+      run: |
+        python3 "${{ github.action_path }}/action/run.py"

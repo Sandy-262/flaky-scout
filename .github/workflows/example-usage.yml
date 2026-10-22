@@ -1,0 +1,23 @@
+# Example: how a repo would wire Flaky Scout into its own CI.
+# Needs a self-hosted runner with Ollama installed and `ollama pull qwen3:8b`
+# run once beforehand — that's what keeps everything local.
+name: Tests with Flaky Scout triage
+
+on: [pull_request]
+
+jobs:
+  test:
+    runs-on: self-hosted   # must have Ollama running locally
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run tests
+        run: pytest --junitxml=report.xml
+        continue-on-error: true   # let Flaky Scout run even if tests failed
+
+      - name: Triage failures with Flaky Scout
+        uses: Sandy-262/flaky-scout@v1
+        with:
+          junit-xml: report.xml
+          post-comment: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}

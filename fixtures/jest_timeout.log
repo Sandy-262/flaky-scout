@@ -1,0 +1,16 @@
+FAIL  src/components/__tests__/Dropdown.test.tsx
+  Dropdown
+    ✕ opens the menu on click (5234 ms)
+
+  ● Dropdown › opens the menu on click
+
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test."
+
+      12 | test('opens the menu on click', async () => {
+      13 |   render(<Dropdown options={opts} />);
+    > 14 |   await waitFor(() => expect(screen.getByRole('listbox')).toBeInTheDocument());
+         |   ^
+      15 | });
+
+      at Object.<anonymous> (src/components/__tests__/Dropdown.test.tsx:14:3)

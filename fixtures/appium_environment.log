@@ -1,0 +1,5 @@
+ConnectionRefusedError: [Errno 61] Connection refused
+  at Object.connect (appium-driver.js:112)
+  at TestSetup.beforeEach (login.spec.js:8)
+Test: 'should load the login screen'
+This test passed on the previous 14 runs.

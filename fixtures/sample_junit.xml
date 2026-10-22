@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="pytest" tests="3" failures="2" errors="0">
+    <testcase classname="tests.test_cart" name="test_discount_applied" time="0.01">
+      <failure message="assert 20.0 == 18.0">AssertionError: assert 20.0 == 18.0
+  where 20.0 = Cart.total
+tests/test_cart.py:42: AssertionError</failure>
+    </testcase>
+    <testcase classname="tests.test_login" name="test_submit_button_visible" time="2.50">
+      <failure message="NoSuchElementException">org.openqa.selenium.NoSuchElementException: Unable to locate element: {"method":"css selector","selector":"#submit-btn"}
+  at tests/test_login.py:19</failure>
+    </testcase>
+    <testcase classname="tests.test_cart" name="test_empty_cart" time="0.00" />
+  </testsuite>
+</testsuites>

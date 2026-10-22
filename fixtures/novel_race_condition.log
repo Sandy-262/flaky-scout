@@ -1,0 +1,11 @@
+Test: 'checkout total updates after adding second item'
+
+Expected cart badge to read "2" within 300ms of the second add-to-cart
+click, but it read "1" at the 300ms mark and only updated to "2" after
+roughly 900ms. The badge count is driven by a Redux selector that
+recomputes on a debounced store subscription (120ms debounce), and the
+test's second click fires only 150ms after the first — close enough to
+the debounce window that ordering isn't guaranteed.
+
+Passed 41/50 times locally with --repeat, failed 9/50, always with the
+same ~150ms gap between the two clicks in the harness.

@@ -1,0 +1,10 @@
+________________________ test_discount_applied ________________________
+
+    def test_discount_applied():
+        cart = Cart(items=[Item("book", 20.0)])
+        cart.apply_coupon("SAVE10")
+>       assert cart.total == 18.0
+E       assert 20.0 == 18.0
+E        +  where 20.0 = <Cart total>
+
+tests/test_cart.py:42: AssertionError

@@ -1,0 +1,5 @@
+org.openqa.selenium.NoSuchElementException: Unable to locate element: {"method":"css selector","selector":"#submit-btn"}
+  at org.openqa.selenium.remote.RemoteWebDriver$RemoteWebDriverElementFinder.findElement(RemoteWebDriver.java:420)
+  at org.openqa.selenium.By$ByCssSelector.findElement(By.java:361)
+  at com.example.tests.CheckoutTest.testSubmitOrder(CheckoutTest.java:48)
+Test: testSubmitOrder

@@ -1,0 +1,10 @@
+Test runner process exited with code 134 (SIGABRT) during
+'ProductGallery renders 500 thumbnails without jank'.
+
+Final heap snapshot before the crash: 1.92GB RSS, up from a 340MB
+baseline at suite start. The gallery component keeps an in-memory
+cache of decoded thumbnail bitmaps keyed by product id and never
+evicts entries, even for products scrolled far out of view. This
+test is the first in the suite to render a large enough catalog
+(500 items) to push the cache past available heap on the CI runner
+(2GB limit).
