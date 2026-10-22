@@ -34,6 +34,13 @@ Flaky Scout runs against [Ollama](https://ollama.com) on your own
 self-hosted runner. Nothing is sent off the box. No API key, no per-call
 cost, no data-retention question to answer for security review.
 
+That said, a self-hosted runner executing code influenced by a pull request
+is its own trust decision, independent of this tool — see
+[SECURITY.md](SECURITY.md) for the threat model, what's hardened in the
+code (input size limits, XML entity-expansion/XXE protection, Markdown
+injection escaping on anything model-derived), and how to configure the
+trigger/permissions safely.
+
 ## How it classifies failures
 
 Cost-layered, so the model is only invoked when it's actually needed:

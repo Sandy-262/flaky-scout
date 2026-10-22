@@ -1,13 +1,32 @@
 # Example: how a repo would wire Flaky Scout into its own CI.
+#
 # Needs a self-hosted runner with Ollama installed and `ollama pull qwen3:8b`
 # run once beforehand — that's what keeps everything local.
+#
+# SECURITY — read before copying this to a public repo:
+# `runs-on: self-hosted` + `on: pull_request` means code from a pull request
+# (including from forks, if your org allows it) runs on *your own*
+# infrastructure. That trust decision is inherent to self-hosted runners and
+# exists independent of Flaky Scout — this comment is here so you make it on
+# purpose. See SECURITY.md for the full rationale and mitigations
+# (requiring approval for first-time contributors, using ephemeral runners,
+# restricting to internal/trusted repos only, etc).
+#
+# Never change the trigger below to `pull_request_target` — combined with a
+# self-hosted runner and a step that checks out/executes PR code (like the
+# test run here), that's the single most common GitHub Actions RCE pattern:
+# it grants write-scoped secrets to a workflow that still runs attacker code.
 name: Tests with Flaky Scout triage
 
 on: [pull_request]
 
+permissions:
+  contents: read          # only what `actions/checkout` needs
+  pull-requests: write    # only what posting a triage comment needs
+
 jobs:
   test:
-    runs-on: self-hosted   # must have Ollama running locally
+    runs-on: self-hosted   # must have Ollama running locally — see SECURITY.md
     steps:
       - uses: actions/checkout@v4
 

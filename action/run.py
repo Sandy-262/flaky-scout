@@ -9,13 +9,16 @@ import os
 import sys
 import urllib.error
 import urllib.request
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 sys.path.insert(0, str(Path(__file__).parent))
 
-from parse_junit import extract_failures  # noqa: E402
-from triage import triage, to_markdown  # noqa: E402
+from parse_junit import extract_failures, UnsafeReportError  # noqa: E402
+from triage import triage, to_markdown, _md_escape  # noqa: E402
+
+MAX_COMMENT_CHARS = 60_000  # GitHub caps issue/PR comment bodies at 65536
 
 
 def post_pr_comment(body: str) -> None:
@@ -54,7 +57,18 @@ def main():
         print(f"::warning::Flaky Scout: no JUnit XML found at {junit_path}, skipping.")
         return
 
-    failures = extract_failures(junit_path)
+    try:
+        failures = extract_failures(junit_path)
+    except UnsafeReportError as e:
+        # Fail closed and loud: this means the report was refused for a
+        # safety reason (oversized, or carries a DOCTYPE/ENTITY), not just
+        # malformed. Don't silently continue past that.
+        print(f"::error::Flaky Scout refused to parse {junit_path}: {e}")
+        sys.exit(1)
+    except ET.ParseError as e:
+        print(f"::warning::Flaky Scout: {junit_path} isn't valid XML ({e}), skipping.")
+        return
+
     if not failures:
         summary = "### 🔍 Flaky Scout\n\nNo failed tests — nothing to triage.\n"
         _write_summary(summary)
@@ -66,7 +80,11 @@ def main():
         result = triage(f["log"])
         if result.get("retry_safe"):
             retry_safe_count += 1
-        heading = f"#### `{f['classname']}.{f['name']}`\n\n" + to_markdown(result, f["log"])
+        # classname/name come from the XML (test output) too — same
+        # untrusted-input rule applies, and they sit inside a backtick
+        # code span here so an unescaped backtick could break out of it.
+        safe_id = _md_escape(f"{f['classname']}.{f['name']}")
+        heading = f"#### `{safe_id}`\n\n" + to_markdown(result, f["log"])
         sections.append(heading)
 
     header = (
@@ -74,6 +92,8 @@ def main():
         f"{retry_safe_count} look retry-safe\n\n"
     )
     summary = header + "\n---\n\n".join(sections)
+    if len(summary) > MAX_COMMENT_CHARS:
+        summary = summary[:MAX_COMMENT_CHARS] + "\n\n…(truncated, too many/large failures to show in full)\n"
 
     _write_summary(summary)
     if post_comment:

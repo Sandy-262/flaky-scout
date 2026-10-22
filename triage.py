@@ -27,6 +27,13 @@ KB_PATH = Path(__file__).parent / "kb.json"
 
 CATEGORIES = ["TIMEOUT", "SELECTOR", "ASSERTION", "ENVIRONMENT", "FLAKY", "UNKNOWN"]
 
+# Defensive limits. A failure log is attacker-influenced input (it comes from
+# whatever the test under CI produced) — these bound how much damage a
+# degenerate or adversarial log/model response can do downstream.
+MAX_LOG_BYTES = 200_000       # a 200KB "failure log" is already absurd
+MAX_FIELD_CHARS = 500         # model/KB-sourced text rendered into Markdown
+MAX_KB_ENTRIES = 5_000        # bound unbounded disk growth from novel failures
+
 # Fast path: common failure signatures across Selenium/Appium/pytest/Jest/JUnit.
 # (pattern, category, fix_hint) — checked in order, first match wins.
 SIGNATURES = [
@@ -56,7 +63,11 @@ def load_kb() -> dict:
 
 
 def save_kb(kb: dict) -> None:
-    KB_PATH.write_text(json.dumps(kb, indent=2, sort_keys=True) + "\n")
+    # Dicts (and json.dump, unsorted) preserve insertion order, so eviction
+    # here is genuinely oldest-first across save/load cycles, not arbitrary.
+    while len(kb) > MAX_KB_ENTRIES:
+        kb.pop(next(iter(kb)))
+    KB_PATH.write_text(json.dumps(kb, indent=2) + "\n")
 
 
 def signature_match(log: str):
@@ -126,12 +137,19 @@ def model_classify(log: str):
     raw = body.get("response", "{}")
     try:
         parsed = json.loads(raw)
-    except json.JSONDecodeError:
+        if not isinstance(parsed, dict):
+            raise ValueError("model response was valid JSON but not an object")
+    except (json.JSONDecodeError, ValueError):
         parsed = {"category": "UNKNOWN", "root_cause": "Model returned unparseable output.",
                    "fix_hint": "Inspect the log manually.", "retry_safe": False}
 
+    # The model's JSON is attacker-influenced (it was asked to summarize
+    # attacker-influenced log text) — never trust its shape or types blindly.
     if parsed.get("category") not in CATEGORIES:
         parsed["category"] = "UNKNOWN"
+    parsed["root_cause"] = str(parsed.get("root_cause", ""))[:MAX_FIELD_CHARS] or "No root cause given."
+    parsed["fix_hint"] = str(parsed.get("fix_hint", ""))[:MAX_FIELD_CHARS] or "No fix hint given."
+    parsed["retry_safe"] = parsed.get("retry_safe") is True  # reject truthy non-bools (e.g. "true" the string)
     parsed["source"] = "model"
     return parsed
 
@@ -157,6 +175,28 @@ def triage(log: str, use_kb: bool = True) -> dict:
     return result
 
 
+# Only escape backslash/backtick/link-and-image syntax/angle-brackets —
+# the actual mechanisms for breaking out of a code span, injecting a
+# phishing link or tracking image, or smuggling raw HTML. Deliberately
+# NOT escaping '.', '-', '*', '_', '#' etc — those are genuinely common
+# in ordinary English root-cause text and escaping them just produces
+# noisy, hard-to-read output ("re\-check", "off\-box") for no real
+# security benefit in a GFM renderer that already sanitizes raw HTML.
+_MD_ESCAPE_RE = re.compile(r"([\\`\[\]()<>])")
+
+
+def _md_escape(text: str) -> str:
+    """Neutralize Markdown link/image/code-span/HTML syntax in untrusted
+    text before it's interpolated into a PR comment or job summary.
+    root_cause/fix_hint can originate from the model (which read
+    attacker-influenced log text), so without this a crafted failure log
+    could inject a phishing link or a tracking image into a comment
+    posted under the workflow's token, or break out of a code span."""
+    text = str(text)[:MAX_FIELD_CHARS]
+    text = text.replace("\r", "").replace("\n", " ")
+    return _MD_ESCAPE_RE.sub(r"\\\1", text)
+
+
 def to_markdown(result: dict, log: str) -> str:
     emoji = {"TIMEOUT": "⏱️", "SELECTOR": "🎯", "ASSERTION": "❌", "ENVIRONMENT": "🌐",
              "FLAKY": "🔁", "UNKNOWN": "❓"}.get(result["category"], "❓")
@@ -165,10 +205,16 @@ def to_markdown(result: dict, log: str) -> str:
                    "kb": "matched a pattern seen before (cached from a prior local-model call)",
                    "model": "classified by the local model (new pattern)",
                    "error": "could not classify"}.get(result.get("source"), "")
+    # Our own hardcoded signature strings (source == "signature") are
+    # trusted and never need escaping; "kb"/"model" text originated from
+    # the model reading attacker-influenced log text, so it does.
+    needs_escape = result.get("source") in ("model", "kb")
+    root_cause = _md_escape(result.get("root_cause", "")) if needs_escape else result.get("root_cause", "")
+    fix_hint = _md_escape(result.get("fix_hint", "")) if needs_escape else result.get("fix_hint", "")
     return (
         f"### {emoji} Flaky Scout triage: `{result['category']}`\n\n"
-        f"**Root cause:** {result['root_cause']}\n\n"
-        f"**Suggested fix:** {result['fix_hint']}\n\n"
+        f"**Root cause:** {root_cause}\n\n"
+        f"**Suggested fix:** {fix_hint}\n\n"
         f"**Auto-retry:** {retry}\n\n"
         f"<sub>{source_note} · classified locally, nothing sent off-box</sub>\n"
     )
@@ -181,7 +227,13 @@ def main():
     ap.add_argument("--no-kb", action="store_true", help="Skip the knowledge-base cache.")
     args = ap.parse_args()
 
-    log_text = args.log.read_text() if args.log else sys.stdin.read()
+    # Read with a bounded size *before* slicing, not read-everything-then-slice —
+    # a multi-GB "log" shouldn't be fully loaded into memory just to be truncated.
+    if args.log:
+        with open(args.log, "r", errors="replace") as f:
+            log_text = f.read(MAX_LOG_BYTES)
+    else:
+        log_text = sys.stdin.read(MAX_LOG_BYTES)
     if not log_text.strip():
         print("No log content given.", file=sys.stderr)
         sys.exit(1)
